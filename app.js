@@ -46,7 +46,7 @@ app.use(cors({
 app.use(express.json())
 
 app.get('/', (req, res)=>{
-    res.send('Express The word')
+    res.send('Express, Hello Word')
 })
 
 // End point / Url API
