@@ -285,7 +285,7 @@ router.post('/siswa-abseni', async (req, res) => {
         }
 
         // Jika ada catatan datang sebelumnya, perbarui dengan waktu pulang
-        if (absensiHariIni.datang) {
+        if (absensiHariIni.pulang) {
             // Pastikan waktu pulang valid (dalam rentang jam pulang yang telah ditentukan)
             if (currentTime.isBetween(moment(jamPulangAwal, "HH:mm"), moment(jamPulangAkhir, "HH:mm"), null, '[)')) {
                 waktuPulang = currentTime.format("HH:mm");
