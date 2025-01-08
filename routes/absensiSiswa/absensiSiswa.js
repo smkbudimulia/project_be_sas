@@ -281,11 +281,11 @@ router.post('/siswa-abseni', async (req, res) => {
             };
 
             await conn('absensi').insert(dataAbsensi);
-            return res.status(201).json({ message: ` ${nama_siswa} absen`, data: dataAbsensi });
+            return res.status(201).json({ message: ` ${nama_siswa} Hadir`, data: dataAbsensi });
         }
 
         // Jika ada catatan datang sebelumnya, perbarui dengan waktu pulang
-        if (absensiHariIni.pulang) {
+        if (absensiHariIni.datang) {
             // Pastikan waktu pulang valid (dalam rentang jam pulang yang telah ditentukan)
             if (currentTime.isBetween(moment(jamPulangAwal, "HH:mm"), moment(jamPulangAkhir, "HH:mm"), null, '[)')) {
                 waktuPulang = currentTime.format("HH:mm");
