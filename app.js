@@ -39,15 +39,15 @@ app.use('/img', express.static(path.join(__dirname, 'uploads/siswa/')));
 // Gunakan cors dengan konfigurasi untuk mengizinkan permintaan dari http://localhost:3000
 app.use(cookieParser());
 app.use(cors({
-    origin: 'https://sas.smkbudimuliapakisaji.sch.id'
     // origin: 'http://localhost:3000'
+    origin : 'https://sas.smkbudimuliapakisaji.sch.id'
   }));
 
  // Middleware untuk mengurai body dalam format JSON
 app.use(express.json())
 
 app.get('/', (req, res)=>{
-    res.send('Express, Hello Word')
+    res.send('Express The word')
 })
 
 // End point / Url API

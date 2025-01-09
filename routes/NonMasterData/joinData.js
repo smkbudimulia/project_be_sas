@@ -83,7 +83,11 @@ router.get('/total-kelas-siswa', async (req, res) => {
             .select(
                 'kelas.kelas',
                 'rombel_belajar.nama_rombel',
-                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Datang" THEN 1 END) AS total_hadir')
+                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Datang" THEN 1 END) AS total_hadir'),
+                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Terlambat" THEN 1 END) AS total_terlambat'), // Menambahkan hitungan untuk "Terlambat"
+                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Alpa" THEN 1 END) AS total_alpa'),
+                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Sakit" THEN 1 END) AS total_sakit'),
+                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Izin" THEN 1 END) AS total_izin'),
             )
             .leftJoin('siswa', 'absensi.id_siswa', 'siswa.id_siswa')
             .leftJoin('kelas', 'siswa.id_kelas', 'kelas.id_kelas')
@@ -103,11 +107,43 @@ router.get('/total-kelas-siswa', async (req, res) => {
                         hadir.nama_rombel === siswa.nama_rombel
                 )
                 .reduce((total, hadir) => total + parseInt(hadir.total_hadir || 0), 0); // Hitung total hadir
-
+                const totalizin = totalHadirData
+                .filter(
+                    (hadir) =>
+                        hadir.kelas === siswa.kelas &&
+                        hadir.nama_rombel === siswa.nama_rombel
+                )
+                .reduce((total, hadir) => total + parseInt(hadir.total_izin || 0), 0); // Hitung total hadir
+                const totalTerlambat = totalHadirData
+                .filter(
+                    (terlambat) =>
+                        terlambat.kelas === siswa.kelas &&
+                        terlambat.nama_rombel === siswa.nama_rombel
+                )
+                .reduce((total, terlambat) => total + parseInt(terlambat.total_terlambat || 0), 0);
+                 // Hitung total alpa
+                 const totalalpa = totalHadirData
+                 .filter(
+                     (alpa) =>
+                         alpa.kelas === siswa.kelas &&
+                         alpa.nama_rombel === siswa.nama_rombel
+                 )
+                 .reduce((total, alpa) => total + parseInt(alpa.total_alpa || 0), 0);
+                 const totalsakit = totalHadirData
+                 .filter(
+                     (sakit) =>
+                         sakit.kelas === siswa.kelas &&
+                         sakit.nama_rombel === siswa.nama_rombel
+                 )
+                 .reduce((total, sakit) => total + parseInt(sakit.total_sakit || 0), 0);
             return {
                 ...siswa,
                 kelas: `${siswa.kelas} ${siswa.nama_rombel}`, // Gabungkan kelas dan rombel
-                total_hadir_perkelas: totalHadir // Tambahkan total hadir langsung
+                total_hadir_perkelas: totalHadir, // Tambahkan total hadir langsung
+                total_terlambat_perkelas: totalTerlambat, // Tambahkan total terlambat
+                total_alpa_perkelas: totalalpa, 
+                total_sakit_perkelas: totalsakit,
+                total_izin_perkelas: totalizin,
             };
         });
         
