@@ -352,7 +352,7 @@ router.get('/all-absensi', async (req, res) => {
         res.status(200).json({
             Status: 200,
             message: "ok",
-            data: mergedData
+            data: result
         });
     } catch (error) {
         console.error(error);
