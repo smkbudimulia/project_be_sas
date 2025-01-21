@@ -252,7 +252,7 @@ router.post('/siswa-abseni', async (req, res) => {
             if (currentTime.isBetween(moment(jamMasukAwal, "HH:mm"), moment(jamTerlambatAwal, "HH:mm"), null, '[)')) {
                 keterangan = 'Datang';
                 waktuDatang = currentTime.format("HH:mm");
-            } else if (currentTime.isBetween(moment(jamTerlambatAwal, "HH:mm"), moment(jamPulangAwal, "HH:mm"), null, '[)')) {
+            } else if (currentTime.isBetween(moment(jamTerlambatAwal, "HH:mm"), moment(jamTerlambatAkhir, "HH:mm"), null, '[)')) {
                 keterangan = 'Terlambat';
                 waktuDatang = currentTime.format("HH:mm");
             // } else if (currentTime.isBetween(moment(jamTerlambatAkhir, "HH:mm"), moment(jamPulangAwal, "HH:mm"), null, '[)')) {
