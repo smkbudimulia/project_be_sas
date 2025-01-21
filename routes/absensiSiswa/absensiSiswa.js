@@ -229,6 +229,26 @@ router.post('/siswa-abseni', async (req, res) => {
 
         // Jika tidak ada catatan absensi sebelumnya
         if (!absensiHariIni) {
+            // Validasi tambahan jika mencoba absen di jam pulang tanpa absen datang
+            if (currentTime.isBetween(moment(jamPulangAwal, "HH:mm"), moment(jamPulangAkhir, "HH:mm"), null, '[)')) {
+                // Catat siswa sebagai Alpa
+                const idAcak = generateRandomString(5);
+                const dataAbsensi = {
+                    id_absen: idAcak,
+                    id_siswa,
+                    keterangan: 'Alpa',
+                    tanggal: currentDate,
+                    datang: null, // Tidak ada waktu datang
+                    pulang: null, // Tidak ada waktu pulang
+                };
+        
+                await conn('absensi').insert(dataAbsensi);
+        
+                return res.status(400).json({
+                    message: 'Kamu belum absen datang dan tercatat sebagai Alpa.',
+                    data: dataAbsensi,
+                });
+            }
             if (currentTime.isBetween(moment(jamMasukAwal, "HH:mm"), moment(jamTerlambatAwal, "HH:mm"), null, '[)')) {
                 keterangan = 'Datang';
                 waktuDatang = currentTime.format("HH:mm");
