@@ -17,42 +17,47 @@ const catatAlpa = async () => {
     const currentDate = moment().format('YYYY-MM-DD');
     console.log("Tanggal hari ini:", currentDate);
     try {
-        // Cari siswa yang belum absen pada hari ini
         const siswaBelumAbsen = await conn('siswa')
             .leftJoin('absensi', 'siswa.id_siswa', 'absensi.id_siswa')
-            .where('absensi.tanggal', currentDate)
-            .orWhereNull('absensi.id_siswa')
-            .select('siswa.id_siswa'); 
-            console.log("Siswa yang belum absen:", siswaBelumAbsen);
+            .where(function () {
+                this.where('absensi.tanggal', currentDate) // Cek tanggal absen
+                    .andWhere(function () {
+                        this.whereNull('absensi.pulang'); // Pulang belum diisi
+                    });
+            })
+            .orWhereNull('absensi.id_siswa') // Tidak ada catatan absen
+            .select('siswa.id_siswa');
+
+        console.log("Siswa yang belum absen pulang:", siswaBelumAbsen);
 
         if (siswaBelumAbsen.length === 0) {
             console.log('Semua siswa telah tercatat hari ini.');
             return;
         }
 
-        // Catat siswa yang belum absen sebagai Alpa
         const dataAlpa = siswaBelumAbsen.map((siswa) => {
             if (!siswa.id_siswa) {
                 console.error("ID Siswa tidak valid:", siswa);
-                return null; // Jangan memasukkan data yang invalid
+                return null;
             }
             return {
                 id_absen: generateRandomString(5),
                 id_siswa: siswa.id_siswa,
                 keterangan: 'Alpa',
                 tanggal: currentDate,
-                datang: null,
-                pulang: null,
+                datang: "",
+                pulang: "",
             };
-        }).filter(item => item !== null); // Menghapus nilai null
-        
-        // console.log("Data yang valid untuk dimasukkan:", dataAlpa);
+        }).filter(item => item !== null);
+
         await conn('absensi').insert(dataAlpa);
         console.log(`${dataAlpa.length} siswa telah dicatat sebagai Alpa.`);
     } catch (error) {
         console.error('Gagal mencatat siswa Alpa:', error.message);
     }
 };
+
+
 
 // Jadwalkan Cron Job untuk dijalankan setiap hari pukul 23:59
 cron.schedule('00 18 * * *', catatAlpa);
