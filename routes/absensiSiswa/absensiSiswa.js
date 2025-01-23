@@ -272,7 +272,7 @@ router.post('/siswa-abseni', async (req, res) => {
                 id_siswa,
                 keterangan,  
                 tanggal: currentDate,
-                datang: currentDate,
+                datang: waktuDatang,
             };
 
             await conn('absensi').insert(dataAbsensi);
@@ -549,6 +549,90 @@ router.post('/add-siswa-absensi-izin', async (req, res) => {
     }
 });
 
+router.get('/all-siswa-absensi-izin', async (req, res) => {
+    try {
+        // Ambil semua data absensi dengan keterangan "Sakit"
+        const absensiIzin = await conn('absensi')
+            .where({ keterangan: 'Izin' })
+            .select('id_absen', 'id_siswa', 'tanggal', 'keterangan');
+
+        // Periksa apakah ada data yang ditemukan
+        if (absensiIzin.length === 0) {
+            return res.status(404).json({ message: 'Tidak ada data absensi dengan status "Izin".' });
+        }
+
+        return res.status(200).json({ 
+            message: 'Data absensi dengan status "Izin" berhasil diambil.', 
+            data: absensiIzin 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.', error });
+    }
+});
+
+router.post('/add-siswa-absensi-alpa', async (req, res) => {
+    try {
+        const { id_siswa, keterangan } = req.body;
+
+        if (!id_siswa) {
+            return res.status(400).json({ message: 'ID siswa wajib diisi.' });
+        }
+
+        if (keterangan !== 'Alpa') {
+            return res.status(400).json({ message: 'Keterangan harus "Alpa".' });
+        }
+
+        const currentTime = moment(); // Waktu sekarang
+        const currentDate = currentTime.format("YYYY-MM-DD"); // Tanggal saat ini
+
+        // Ambil data absensi siswa untuk hari ini
+        const absensiHariIni = await conn('absensi')
+            .where({ id_siswa, tanggal: currentDate })
+            .first();
+
+        // Jika tidak ada catatan absensi sebelumnya, catat "Izin"
+        if (!absensiHariIni) {
+            const idAcak = generateRandomString(5); // Buat ID unik
+            const dataAbsensi = {
+                id_absen: idAcak,
+                id_siswa,
+                keterangan: "Alpa",  // Status "Izin"
+                tanggal: currentDate,
+                datang: currentDate,
+            };
+
+            await conn('absensi').insert(dataAbsensi);
+            return res.status(201).json({ message: 'Absensi izin berhasil dicatat', data: dataAbsensi });
+        } else {
+            return res.status(400).json({ message: 'Absensi sudah tercatat untuk hari ini.' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.', error });
+    }
+});
+router.get('/all-siswa-absensi-alpa', async (req, res) => {
+    try {
+        // Ambil semua data absensi dengan keterangan "Sakit"
+        const absensiAlpa = await conn('absensi')
+            .where({ keterangan: 'Alpa' })
+            .select('id_absen', 'id_siswa', 'tanggal', 'keterangan');
+
+        // Periksa apakah ada data yang ditemukan
+        if (absensiAlpa.length === 0) {
+            return res.status(404).json({ message: 'Tidak ada data absensi dengan status "Alpa".' });
+        }
+
+        return res.status(200).json({ 
+            message: 'Data absensi dengan status "Alpa" berhasil diambil.', 
+            data: absensiAlpa 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Terjadi kesalahan pada server.', error });
+    }
+});
 
 // router untuk mengatasi sakit di halaman utama
 // Rute yang benar adalah '/sakit'
