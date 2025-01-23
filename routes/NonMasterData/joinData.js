@@ -4,61 +4,6 @@ const conn = require('../../Database/ConfigDB')// koneksi ke database
 // const bcrypt = require('bcrypt')
 const verifyToken = require('../../middleware/jwToken')
 
-
-
-// data jumlah kelas dan siswanya
-// router.get('/total-kelas-siswa', async (req, res) => {
-//     try {
-//         const data = await conn('siswa')
-//             .select(
-//                 'siswa.id_kelas',
-//                 'siswa.id_rombel',
-//                 'kelas.kelas', // Nama kelas dari tabel kelas
-//                 'rombel_belajar.nama_rombel' // Nama rombel dari tabel rombel_belajar
-//             )
-//             .count('* as total_siswa')
-//             .leftJoin('kelas', 'siswa.id_kelas', 'kelas.id_kelas')
-//             .leftJoin('rombel_belajar', 'siswa.id_rombel', 'rombel_belajar.id_rombel')
-//             .groupBy('siswa.id_kelas', 'siswa.id_rombel', 'kelas.kelas', 'rombel_belajar.nama_rombel');
-
-//             //mengambil data guru
-//             const guruData = await conn('guru')
-//             .select('id_guru', 'nama_guru');
-
-            
-
-//         const result = data.map(item => ({
-//             ...item,
-//             kelas: `${item.kelas} ${item.nama_rombel}` // Menggabungkan nama kelas dan nama rombel
-//         }));
-
-//         // Menghitung total semua siswa
-//         const totalSemuaSiswa = result.reduce((total, item) => total + item.total_siswa, 0);
-
-//         if (data && data.length > 0) {
-//             res.status(200).json({
-//                 Status: 200,
-//                 message: "ok",
-//                 Guru: guruData,
-//                 totalSemuaSiswa, // Menambahkan total semua siswa
-//                 data: result,
-
-//             });
-//         } else {
-//             res.status(200).json({
-//                 Status: 200,
-//                 message: "No data found",
-//                 data: []
-//             });
-//         }
-//     } catch (error) {
-//         console.error("Database query failed:", error.message);
-//         res.status(500).json({
-//             Status: 500,
-//             error: 'Internal Server Error'
-//         });
-//     }
-// });
 router.get('/total-kelas-siswa', async (req, res) => {
     try {
         // Mendapatkan tanggal sesuai waktu komputer server
@@ -152,6 +97,27 @@ router.get('/total-kelas-siswa', async (req, res) => {
         const totalSemuaRombel = new Set(
             siswaData.map((item) => `${item.kelas} ${item.nama_rombel}`)
         ).size;
+
+        // Hitung total keseluruhan hadir, terlambat, alpa, sakit, dan izin
+        const totalKeseluruhan = combinedData.reduce(
+            (acc, item) => {
+                acc.total_hadir += item.total_hadir_perkelas;
+                acc.total_terlambat += item.total_terlambat_perkelas;
+                acc.total_alpa += item.total_alpa_perkelas;
+                acc.total_sakit += item.total_sakit_perkelas;
+                acc.total_izin += item.total_izin_perkelas;
+                return acc;
+            },
+            { total_hadir: 0, total_terlambat: 0, total_alpa: 0, total_sakit: 0, total_izin: 0 }
+        );
+
+        // Menjumlahkan semua kategori
+        const totalSemuaKategori = 
+        totalKeseluruhan.total_hadir +
+        totalKeseluruhan.total_terlambat +
+        totalKeseluruhan.total_alpa +
+        totalKeseluruhan.total_sakit +
+        totalKeseluruhan.total_izin;
         
         res.status(200).json({
             Status: 200,
@@ -159,6 +125,8 @@ router.get('/total-kelas-siswa', async (req, res) => {
             totalSemuaSiswa,
             totalSemuaRombel,
             totalSemuaGuru: totalSemuaGuru.total_guru, // Tambahkan total guru
+            totalKeseluruhan,
+            totalSemuaKategori,
             tanggal: formattedDate, // Tanggal hari ini
             data: combinedData
         });
@@ -170,9 +138,6 @@ router.get('/total-kelas-siswa', async (req, res) => {
         });
     }
 });
-
-
-
 router.get('/absensi-siswa', async (req, res) => {
     try {
         // Query untuk mengambil data absensi dengan join ke tabel siswa

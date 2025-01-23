@@ -229,35 +229,35 @@ router.post('/siswa-abseni', async (req, res) => {
 
         // Jika tidak ada catatan absensi sebelumnya
         if (!absensiHariIni) {
-            // Validasi tambahan jika mencoba absen di jam pulang tanpa absen datang
-            if (currentTime.isBetween(moment(jamPulangAwal, "HH:mm"), moment(jamPulangAkhir, "HH:mm"), null, '[)')) {
-                // Catat siswa sebagai Alpa
-                const idAcak = generateRandomString(5);
-                const dataAbsensi = {
-                    id_absen: idAcak,
-                    id_siswa,
-                    keterangan: 'Alpa',
-                    tanggal: currentDate,
-                    datang: null, // Tidak ada waktu datang
-                    pulang: null, // Tidak ada waktu pulang
-                };
-        
-                await conn('absensi').insert(dataAbsensi);
-        
-                return res.status(400).json({
-                    message: 'Kamu belum absen datang dan tercatat sebagai Alpa.',
-                    data: dataAbsensi,
+
+             // Validasi jika mencoba absen setelah jam pulang
+             if (currentTime.isAfter(moment(jamPulangAkhir, "HH:mm"))) {
+                return res.status(200).json({
+                    message: 'Maaf, Pembelajaran hari ini telah selesai :).',
                 });
             }
-            if (currentTime.isBetween(moment(jamMasukAwal, "HH:mm"), moment(jamTerlambatAwal, "HH:mm"), null, '[)')) {
+
+            // Validasi tambahan jika mencoba absen di luar jam yang ditentukan
+            if (!currentTime.isBetween(moment(jamMasukAwal, "HH:mm"), moment(jamTerlambatAkhir, "HH:mm"), null, '[]')) {
+                return res.status(400).json({
+                    message: 'Kamu absen di luar jam yang ditentukan.',
+                });
+            }
+
+            if (currentTime.isBetween(moment(jamTerlambatAkhir, "HH:mm"), moment(jamPulangAwal, "HH:mm"), null, '[]')) {
+                return res.status(400).json({
+                    message: 'Kamu absen di luar jam yang ditentukan.',
+                });
+            }
+
+           
+
+            if (currentTime.isBetween(moment(jamMasukAwal, "HH:mm"), moment(jamTerlambatAwal, "HH:mm"), null, '[]')) {
                 keterangan = 'Datang';
                 waktuDatang = currentTime.format("HH:mm");
-            } else if (currentTime.isBetween(moment(jamTerlambatAwal, "HH:mm"), moment(jamPulangAwal, "HH:mm"), null, '[)')) {
+            } else if (currentTime.isBetween(moment(jamTerlambatAwal, "HH:mm"), moment(jamTerlambatAkhir, "HH:mm"), null, '[]')) {
                 keterangan = 'Terlambat';
                 waktuDatang = currentTime.format("HH:mm");
-            // } else if (currentTime.isBetween(moment(jamTerlambatAkhir, "HH:mm"), moment(jamPulangAwal, "HH:mm"), null, '[)')) {
-            //     keterangan = 'Alpa';
-            //     waktuDatang = currentTime.format("HH:mm");
             } else {
                 if (currentTime.isAfter(moment(jamPulangAkhir, "HH:mm"))) {
                     return res.status(200).json({
@@ -285,7 +285,7 @@ router.post('/siswa-abseni', async (req, res) => {
         }
 
         if (absensiHariIni.datang) {
-            if (currentTime.isBetween(moment(jamPulangAwal, "HH:mm"), moment(jamPulangAkhir, "HH:mm"), null, '[)')) {
+            if (currentTime.isBetween(moment(jamPulangAwal, "HH:mm"), moment(jamPulangAkhir, "HH:mm"), null, '[]')) {
                 waktuPulang = currentTime.format("HH:mm");
                 await conn('absensi')
                     .where({ id_siswa, tanggal: currentDate })
