@@ -198,6 +198,7 @@ router.get('/all-absensi', async (req, res) => {
                 'siswa.id_siswa',
                 'siswa.nama_siswa',
                 'kelas.kelas',
+                'absensi.pulang',
                 'rombel_belajar.nama_rombel'
             )
             .leftJoin('siswa', 'absensi.id_siswa', 'siswa.id_siswa')
@@ -222,6 +223,7 @@ router.get('/all-absensi', async (req, res) => {
                 nama_rombel: absensi.nama_rombel,
                 tanggal: absensi.tanggal,
                 keterangan: absensi.keterangan,
+                pulang: absensi.pulang,
                 total_hadir: totals ? totals.total_hadir : 0, // Tambahkan total hadir
                 total_terlambat: totals ? totals.total_terlambat : 0, // Tambahkan total terlambat
                 total_alpa: totals ? totals.total_alpa : 0
