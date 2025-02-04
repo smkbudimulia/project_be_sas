@@ -180,10 +180,10 @@ router.get('/absensi-siswa', async (req, res) => {
         });
     }
 });
-
-//home page izin(sakit, ket lain, pulang, absensi)
 router.get('/nama-siswa-kelas', async (req, res) => {
     try {
+        // Dapatkan tanggal hari ini dalam format YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0];
         const data = await conn('siswa')
             .select(
                 'siswa.id_siswa',
@@ -197,6 +197,11 @@ router.get('/nama-siswa-kelas', async (req, res) => {
             )
             .leftJoin('kelas', 'siswa.id_kelas', 'kelas.id_kelas')
             .leftJoin('rombel_belajar', 'siswa.id_rombel', 'rombel_belajar.id_rombel')
+            .leftJoin('absensi', function() {
+                this.on('siswa.id_siswa', '=', 'absensi.id_siswa')
+                    .andOn('absensi.tanggal', '=', conn.raw('?', [today])); // Hanya cek untuk hari ini
+            })
+            .whereNull('absensi.id_absen') // Hanya ambil siswa yang belum absen hari ini
             .groupBy(
                 'siswa.nis',
                 'siswa.id_kelas',
@@ -233,6 +238,58 @@ router.get('/nama-siswa-kelas', async (req, res) => {
         });
     }
 });
+//home page izin(sakit, ket lain, pulang, absensi)
+// router.get('/nama-siswa-kelas', async (req, res) => {
+//     try {
+//         const data = await conn('siswa')
+//             .select(
+//                 'siswa.id_siswa',
+//                 'siswa.nis',
+//                 'siswa.id_kelas',
+//                 'siswa.id_rombel',
+//                 'siswa.nama_siswa',
+//                 'siswa.nomor_wali',
+//                 'kelas.kelas', // Nama kelas dari tabel kelas
+//                 'rombel_belajar.nama_rombel' // Nama rombel dari tabel rombel_belajar
+//             )
+//             .leftJoin('kelas', 'siswa.id_kelas', 'kelas.id_kelas')
+//             .leftJoin('rombel_belajar', 'siswa.id_rombel', 'rombel_belajar.id_rombel')
+//             .groupBy(
+//                 'siswa.nis',
+//                 'siswa.id_kelas',
+//                 'siswa.id_rombel',
+//                 'siswa.nama_siswa',
+//                 'siswa.nomor_wali',
+//                 'kelas.kelas',
+//                 'rombel_belajar.nama_rombel'
+//             );
+
+//         const result = data.map(item => ({
+//             ...item,
+//             kelas: `${item.kelas} ${item.nama_rombel}` // Menggabungkan nama kelas dan nama rombel
+//         }));
+
+//         if (data && data.length > 0) {
+//             res.status(200).json({
+//                 Status: 200,
+//                 message: "ok",
+//                 data: result
+//             });
+//         } else {
+//             res.status(200).json({
+//                 Status: 200,
+//                 message: "No data found",
+//                 data: []
+//             });
+//         }
+//     } catch (error) {
+//         console.error("Database query failed:", error.message);
+//         res.status(500).json({
+//             Status: 500,
+//             error: 'Internal Server Error'
+//         });
+//     }
+// });
 
 //Halaman Rombel yang ada di masterdata siswa
 router.get('/rombel-siswa', async (req, res) => {
