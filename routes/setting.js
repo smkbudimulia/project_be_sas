@@ -3,6 +3,7 @@ const router = express.Router();
 const conn = require('../Database/ConfigDB')// koneksi ke database
 // const bcrypt = require('bcrypt')
 const verifyToken = require('../middleware/jwToken')
+const multer = require('multer');
 
 // Setup multer untuk menyimpan file logo
 const storage = multer.diskStorage({
