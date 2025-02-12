@@ -337,7 +337,7 @@ router.post('/add-siswa-absensi-sakit', async (req, res) => {
                 id_siswa,
                 keterangan: "Sakit",  // Status "Sakit"
                 tanggal: currentDate,
-                datang: currentDate,
+                datang,
             };
 
             await conn('absensi').insert(dataAbsensi);
@@ -401,7 +401,7 @@ router.post('/add-siswa-absensi-izin', async (req, res) => {
                 id_siswa,
                 keterangan: "Izin",  // Status "Izin"
                 tanggal: currentDate,
-                datang: currentDate,
+                datang,
             };
 
             await conn('absensi').insert(dataAbsensi);
@@ -465,7 +465,7 @@ router.post('/add-siswa-absensi-alpa', async (req, res) => {
                 id_siswa,
                 keterangan: "Alpa",  // Status "Izin"
                 tanggal: currentDate,
-                datang: currentDate,
+                datang,
             };
 
             await conn('absensi').insert(dataAbsensi);
