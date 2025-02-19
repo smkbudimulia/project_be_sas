@@ -203,10 +203,10 @@ router.get('/all-setting', async (req, res) => {
 });
 
 // Tambah atau update instansi
-router.post('/instansi', upload.single('logo'), async (req, res) => {
+router.post('/instansi', async (req, res) => {
     try {
-        const { nama_instansi } = req.body;
-        const logo = req.file ? req.file.path : null;  // Jika tidak ada file, set logo menjadi null
+        const { nama_instansi, logo } = req.body;
+        // const logo = req.file ? req.file.path : null;  // Jika tidak ada file, set logo menjadi null
 
         // Cek apakah data instansi sudah ada (langsung check apakah ada instansi apapun di tabel)
         const existingInstansi = await conn('instansi').first();
@@ -216,7 +216,8 @@ router.post('/instansi', upload.single('logo'), async (req, res) => {
             await conn('instansi')
                 .update({
                     nama_instansi,
-                    logo: logo || existingInstansi.logo,  // Jika logo baru tidak ada, gunakan logo lama
+                    // logo: logo || existingInstansi.logo,  // Jika logo baru tidak ada, gunakan logo lama
+                    logo
                 });
 
             return res.status(200).json({ success: true, message: 'Instansi berhasil diperbarui' });
