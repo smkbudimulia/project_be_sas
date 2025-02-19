@@ -205,32 +205,30 @@ router.get('/all-setting', async (req, res) => {
 // Tambah atau update instansi
 router.post('/instansi', async (req, res) => {
     try {
-        const { nama_instansi, logo } = req.body;
-        // const logo = req.file ? req.file.path : null;  // Jika tidak ada file, set logo menjadi null
+        const { nama_instansi, logo } = req.body; // Logo bisa null
 
-        // Cek apakah data instansi sudah ada (langsung check apakah ada instansi apapun di tabel)
+        // Cek apakah data instansi sudah ada
         const existingInstansi = await conn('instansi').first();
 
         if (existingInstansi) {
-            // Jika sudah ada, lakukan update
+            // Jika ada, lakukan update
             await conn('instansi')
                 .update({
                     nama_instansi,
-                    // logo: logo || existingInstansi.logo,  // Jika logo baru tidak ada, gunakan logo lama
-                    logo
+                    logo: logo !== "" ? logo : existingInstansi.logo // Hanya update jika logo ada
                 });
 
             return res.status(200).json({ success: true, message: 'Instansi berhasil diperbarui' });
         } else {
-            // Jika belum ada data, insert data baru
-            const idAcak = generateRandomString(5);  // Membuat id unik untuk instansi
+            // Jika belum ada, insert data baru
+            const idAcak = generateRandomString(5);
             const dataInstansi = {
                 id_instansi: idAcak,
                 nama_instansi,
-                logo,
+                logo: logo || null, // Jika logo kosong, set null
             };
 
-            await conn('instansi').insert(dataInstansi);  // Menyimpan data baru ke database
+            await conn('instansi').insert(dataInstansi);
 
             return res.status(201).json({ success: true, message: 'Instansi berhasil ditambahkan', id_instansi: idAcak });
         }
@@ -239,6 +237,7 @@ router.post('/instansi', async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 });
+
 // Ambil semua data instansi
 router.get('/all-instansi', async (req, res) => {
     try {
