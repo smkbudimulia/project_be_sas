@@ -204,55 +204,53 @@ router.get('/all-setting', async (req, res) => {
 
 // Tambah atau update instansi
 router.post('/instansi', upload.single('logo'), async (req, res) => {
-  try {
-      const { nama_instansi } = req.body;
-      const logo = req.file ? req.file.path : null;  // Jika tidak ada file, set logo menjadi null
+    try {
+        const { nama_instansi } = req.body;
+        const logo = req.file ? req.file.path : null;  // Jika tidak ada file, set logo menjadi null
 
-      // Cek apakah data instansi sudah ada (langsung check apakah ada instansi apapun di tabel)
-      const existingInstansi = await conn('instansi').first();
+        // Cek apakah data instansi sudah ada (langsung check apakah ada instansi apapun di tabel)
+        const existingInstansi = await conn('instansi').first();
 
-      if (existingInstansi) {
-          // Jika sudah ada, lakukan update
-          await conn('instansi')
-              .update({
-                  nama_instansi,
-                  logo: logo || existingInstansi.logo,  // Jika logo baru tidak ada, gunakan logo lama
-              });
+        if (existingInstansi) {
+            // Jika sudah ada, lakukan update
+            await conn('instansi')
+                .update({
+                    nama_instansi,
+                    logo: logo || existingInstansi.logo,  // Jika logo baru tidak ada, gunakan logo lama
+                });
 
-          return res.status(200).json({ success: true, message: 'Instansi berhasil diperbarui' });
-      } else {
-          // Jika belum ada data, insert data baru
-          const idAcak = generateRandomString(5);  // Membuat id unik untuk instansi
-          const dataInstansi = {
-              id_instansi: idAcak,
-              nama_instansi,
-              logo,
-          };
+            return res.status(200).json({ success: true, message: 'Instansi berhasil diperbarui' });
+        } else {
+            // Jika belum ada data, insert data baru
+            const idAcak = generateRandomString(5);  // Membuat id unik untuk instansi
+            const dataInstansi = {
+                id_instansi: idAcak,
+                nama_instansi,
+                logo,
+            };
 
-          await conn('instansi').insert(dataInstansi);  // Menyimpan data baru ke database
+            await conn('instansi').insert(dataInstansi);  // Menyimpan data baru ke database
 
-          return res.status(201).json({ success: true, message: 'Instansi berhasil ditambahkan', id_instansi: idAcak });
-      }
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Internal Server Error' });
-  }
+            return res.status(201).json({ success: true, message: 'Instansi berhasil ditambahkan', id_instansi: idAcak });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
 });
-
-
 // Ambil semua data instansi
 router.get('/all-instansi', async (req, res) => {
-  try {
-      // Pilih hanya nama_instansi dan logo dari tabel instansi
-      const instansi = await conn('instansi').select('nama_instansi', 'logo');
-      
-      res.status(200).json({ success: true, data: instansi });
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Internal Server Error' });
-  }
+    try {
+        // Pilih hanya nama_instansi dan logo dari tabel instansi
+        const instansi = await conn('instansi').select('nama_instansi', 'logo');
+        
+        res.status(200).json({ success: true, data: instansi });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
 });
-  
+
 
 
   module.exports = router;
