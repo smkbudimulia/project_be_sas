@@ -109,7 +109,7 @@ router.get('/total-kelas-siswa', async (req, res) => {
         // Hitung total keseluruhan hadir, terlambat, alpa, sakit, dan izin
         const totalKeseluruhan = combinedData.reduce(
             (acc, item) => {
-                acc.total_hadir += item.total_hadir_perkelas;
+                acc.total_hadir += item.total_hadir_perkelas + item.total_terlambat_perkelas;
                 acc.total_terlambat += item.total_terlambat_perkelas;
                 acc.total_alpa += item.total_alpa_perkelas;
                 acc.total_sakit += item.total_sakit_perkelas;
