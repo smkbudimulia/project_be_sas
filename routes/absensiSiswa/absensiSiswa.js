@@ -184,7 +184,8 @@ router.get('/all-absensi', async (req, res) => {
                 'siswa.id_siswa',
                 conn.raw('COUNT(CASE WHEN absensi.keterangan = "Datang" THEN 1 END) AS total_hadir'), // Total Hadir
                 conn.raw('COUNT(CASE WHEN absensi.keterangan = "Terlambat" THEN 1 END) AS total_terlambat'), // Total Terlambat
-                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Alpa" THEN 1 END) AS total_alpa') // Total Alpa
+                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Alpa" THEN 1 END) AS total_alpa'), // Total Alpa
+                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Pulang" THEN 1 END) AS total_pulang') // Total Alpa
             )
             .leftJoin('siswa', 'absensi.id_siswa', 'siswa.id_siswa')
             .groupBy('siswa.id_siswa');
@@ -226,7 +227,8 @@ router.get('/all-absensi', async (req, res) => {
                 pulang: absensi.pulang,
                 total_hadir: totals ? totals.total_hadir : 0, // Tambahkan total hadir
                 total_terlambat: totals ? totals.total_terlambat : 0, // Tambahkan total terlambat
-                total_alpa: totals ? totals.total_alpa : 0
+                total_alpa: totals ? totals.total_alpa : 0,
+                total_pulang: totals ? totals.total_pulang : 0,
             };
         });
         const result = mergedData.map(item => ({
