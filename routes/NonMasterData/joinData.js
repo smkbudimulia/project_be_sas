@@ -81,6 +81,13 @@ router.get('/total-kelas-siswa', async (req, res) => {
                          sakit.nama_rombel === siswa.nama_rombel
                  )
                  .reduce((total, sakit) => total + parseInt(sakit.total_sakit || 0), 0);
+                 const totalpulang = totalHadirData
+                 .filter(
+                     (pulang) =>
+                         pulang.kelas === siswa.kelas &&
+                         pulang.nama_rombel === siswa.nama_rombel
+                 )
+                 .reduce((total, pulang) => total + parseInt(pulang.total_pulang || 0), 0);
             return {
                 ...siswa,
                 kelas: `${siswa.kelas} ${siswa.nama_rombel}`, // Gabungkan kelas dan rombel
@@ -89,6 +96,7 @@ router.get('/total-kelas-siswa', async (req, res) => {
                 total_alpa_perkelas: totalalpa, 
                 total_sakit_perkelas: totalsakit,
                 total_izin_perkelas: totalizin,
+                total_pulang_perkelas: totalpulang,
             };
         });
         
@@ -106,9 +114,10 @@ router.get('/total-kelas-siswa', async (req, res) => {
                 acc.total_alpa += item.total_alpa_perkelas;
                 acc.total_sakit += item.total_sakit_perkelas;
                 acc.total_izin += item.total_izin_perkelas;
+                acc.total_pulang += item.total_pulang_perkelas;
                 return acc;
             },
-            { total_hadir: 0, total_terlambat: 0, total_alpa: 0, total_sakit: 0, total_izin: 0 }
+            { total_hadir: 0, total_terlambat: 0, total_alpa: 0, total_sakit: 0, total_izin: 0, total_pulang: 0 }
         );
 
         // Menjumlahkan semua kategori
@@ -117,7 +126,8 @@ router.get('/total-kelas-siswa', async (req, res) => {
         totalKeseluruhan.total_terlambat +
         totalKeseluruhan.total_alpa +
         totalKeseluruhan.total_sakit +
-        totalKeseluruhan.total_izin;
+        totalKeseluruhan.total_izin +
+        totalKeseluruhan.total_pulang;
         
         res.status(200).json({
             Status: 200,
