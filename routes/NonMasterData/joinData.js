@@ -125,8 +125,7 @@ router.get('/total-kelas-siswa', async (req, res) => {
         totalKeseluruhan.total_hadir +
         totalKeseluruhan.total_alpa +
         totalKeseluruhan.total_sakit +
-        totalKeseluruhan.total_izin +
-        totalKeseluruhan.total_pulang;
+        totalKeseluruhan.total_izin;
         
         res.status(200).json({
             Status: 200,
