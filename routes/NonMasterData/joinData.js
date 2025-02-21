@@ -33,7 +33,7 @@ router.get('/total-kelas-siswa', async (req, res) => {
                 conn.raw('COUNT(CASE WHEN absensi.keterangan = "Alpa" THEN 1 END) AS total_alpa'),
                 conn.raw('COUNT(CASE WHEN absensi.keterangan = "Sakit" THEN 1 END) AS total_sakit'),
                 conn.raw('COUNT(CASE WHEN absensi.keterangan = "Izin" THEN 1 END) AS total_izin'),
-                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Pulang" THEN 1 END) AS total_pulang'),
+                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Pulang" THEN 1 END) AS total_pulang') // Tambahkan total pulang
             )
             .leftJoin('siswa', 'absensi.id_siswa', 'siswa.id_siswa')
             .leftJoin('kelas', 'siswa.id_kelas', 'kelas.id_kelas')
@@ -82,13 +82,13 @@ router.get('/total-kelas-siswa', async (req, res) => {
                          sakit.nama_rombel === siswa.nama_rombel
                  )
                  .reduce((total, sakit) => total + parseInt(sakit.total_sakit || 0), 0);
-                 const totalpulang = totalHadirData
-                 .filter(
-                     (pulang) =>
-                         pulang.kelas === siswa.kelas &&
-                         pulang.nama_rombel === siswa.nama_rombel
-                 )
-                 .reduce((total, pulang) => total + parseInt(pulang.total_pulang || 0), 0);
+                 const totalPulang = totalHadirData
+                .filter(
+                    (pulang) =>
+                        pulang.kelas === siswa.kelas &&
+                        pulang.nama_rombel === siswa.nama_rombel
+                )
+                .reduce((total, pulang) => total + parseInt(pulang.total_pulang || 0), 0);
             return {
                 ...siswa,
                 kelas: `${siswa.kelas} ${siswa.nama_rombel}`, // Gabungkan kelas dan rombel
@@ -97,7 +97,7 @@ router.get('/total-kelas-siswa', async (req, res) => {
                 total_alpa_perkelas: totalalpa, 
                 total_sakit_perkelas: totalsakit,
                 total_izin_perkelas: totalizin,
-                total_pulang_perkelas: totalpulang,
+                total_pulang_perkelas: totalPulang,
             };
         });
         
@@ -115,7 +115,7 @@ router.get('/total-kelas-siswa', async (req, res) => {
                 acc.total_alpa += item.total_alpa_perkelas;
                 acc.total_sakit += item.total_sakit_perkelas;
                 acc.total_izin += item.total_izin_perkelas;
-                acc.total_pulang += item.total_pulang_perkelas;
+                acc.total_pulang += item.total_pulang_perkelas; // Tambahkan total pulang
                 return acc;
             },
             { total_hadir: 0, total_terlambat: 0, total_alpa: 0, total_sakit: 0, total_izin: 0, total_pulang: 0 }
