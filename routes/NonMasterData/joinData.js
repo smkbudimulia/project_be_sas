@@ -123,7 +123,6 @@ router.get('/total-kelas-siswa', async (req, res) => {
         // Menjumlahkan semua kategori
         const totalSemuaKategori = 
         totalKeseluruhan.total_hadir +
-        totalKeseluruhan.total_terlambat +
         totalKeseluruhan.total_alpa +
         totalKeseluruhan.total_sakit +
         totalKeseluruhan.total_izin +
