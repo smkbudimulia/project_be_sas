@@ -33,6 +33,7 @@ router.get('/total-kelas-siswa', async (req, res) => {
                 conn.raw('COUNT(CASE WHEN absensi.keterangan = "Alpa" THEN 1 END) AS total_alpa'),
                 conn.raw('COUNT(CASE WHEN absensi.keterangan = "Sakit" THEN 1 END) AS total_sakit'),
                 conn.raw('COUNT(CASE WHEN absensi.keterangan = "Izin" THEN 1 END) AS total_izin'),
+                conn.raw('COUNT(CASE WHEN absensi.keterangan = "Pulang" THEN 1 END) AS total_pulang'),
             )
             .leftJoin('siswa', 'absensi.id_siswa', 'siswa.id_siswa')
             .leftJoin('kelas', 'siswa.id_kelas', 'kelas.id_kelas')
