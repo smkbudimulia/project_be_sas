@@ -203,32 +203,33 @@ router.get('/all-setting', async (req, res) => {
 });
 
 // Tambah atau update instansi
-router.post('/instansi', async (req, res) => {
+router.post('/instansi', upload.single('logo'), async (req, res) => {
     try {
-        const { nama_instansi, logo } = req.body; // Logo bisa null
+        const { nama_instansi } = req.body;
+        const logo = req.file ? req.file.path : null;  // Jika tidak ada file, set logo menjadi null
 
-        // Cek apakah data instansi sudah ada
+        // Cek apakah data instansi sudah ada (langsung check apakah ada instansi apapun di tabel)
         const existingInstansi = await conn('instansi').first();
 
         if (existingInstansi) {
-            // Jika ada, lakukan update
+            // Jika sudah ada, lakukan update
             await conn('instansi')
                 .update({
                     nama_instansi,
-                    logo: logo !== "" ? logo : existingInstansi.logo // Hanya update jika logo ada
+                    logo: logo || existingInstansi.logo,  // Jika logo baru tidak ada, gunakan logo lama
                 });
 
             return res.status(200).json({ success: true, message: 'Instansi berhasil diperbarui' });
         } else {
-            // Jika belum ada, insert data baru
-            const idAcak = generateRandomString(5);
+            // Jika belum ada data, insert data baru
+            const idAcak = generateRandomString(5);  // Membuat id unik untuk instansi
             const dataInstansi = {
                 id_instansi: idAcak,
                 nama_instansi,
-                logo: logo || null, // Jika logo kosong, set null
+                logo,
             };
 
-            await conn('instansi').insert(dataInstansi);
+            await conn('instansi').insert(dataInstansi);  // Menyimpan data baru ke database
 
             return res.status(201).json({ success: true, message: 'Instansi berhasil ditambahkan', id_instansi: idAcak });
         }
