@@ -17,7 +17,7 @@ cron.schedule("0 11 * * *", async () => {
     try {
         const currentDate = moment().format("YYYY-MM-DD");
 
-        // Cari siswa yang belum memiliki keterangan Hadir/Terlambat
+        // Cari siswa kelas 10 & 11 yang belum memiliki keterangan Hadir/Terlambat
         const siswaBelumAbsen = await conn("siswa")
             .leftJoin("absensi", function () {
                 this.on("siswa.id_siswa", "=", "absensi.id_siswa").andOn(
@@ -26,6 +26,7 @@ cron.schedule("0 11 * * *", async () => {
                     conn.raw("?", [currentDate])
                 );
             })
+            .whereNotIn("siswa.id_kelas", ["xiIbU", "RYUsq"]) // ⬅️ Hanya proses kelas 10 dan 11
             .whereNull("absensi.id_siswa") // Siswa yang belum absen
             .select("siswa.id_siswa");
 
@@ -40,9 +41,9 @@ cron.schedule("0 11 * * *", async () => {
             }));
 
             await conn("absensi").insert(dataAlpa);
-            console.log(`${siswaBelumAbsen.length} siswa otomatis ditandai Alpa.`);
+            console.log(`${siswaBelumAbsen.length} siswa kelas 10 & 11 otomatis ditandai Alpa.`);
         } else {
-            console.log("Semua siswa sudah absen sebelum jam 12 siang.");
+            console.log("Semua siswa kelas 10 & 11 sudah absen sebelum jam 12 siang.");
         }
     } catch (error) {
         console.error("Gagal menjalankan cron job untuk absensi Alpa:", error);
