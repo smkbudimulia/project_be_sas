@@ -1,16 +1,14 @@
 const knex = require('knex')
+require('dotenv').config()
 
 
 const connection = {
-    host: 'localhost',
-    user: 'u1583982_sas',
-    password: 'O))_F^ML]2D%',
-    database: 'u1583982_sas'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
 
-    // host: 'localhost',
-    // user: 'root',
-    // password: '',
-    // database: 'absensisiswa'
+
 }
 
 const database = knex({
