@@ -60,7 +60,8 @@ const catatAlpa = async () => {
 
 
 // Jadwalkan Cron Job untuk dijalankan setiap hari pukul 23:59
-cron.schedule('05 11 * * *', catatAlpa);
+// cron.schedule('05 11 * * *', catatAlpa);
+// cron.schedule('05 11 * * *', catatAlpa);
 
 console.log('Cron Job untuk mencatat siswa Alpa telah dijalankan.');
 
