@@ -501,6 +501,28 @@ router.get('/all-siswa-absensi-alpa', async (req, res) => {
         res.status(500).json({ message: 'Terjadi kesalahan pada server.', error });
     }
 });
+router.post("/update-absensi-pkl", async (req, res) => {
+    try {
+      const { kelasTerpilih } = req.body;
+      console.log("Data yang diterima:", kelasTerpilih); // Debugging
+  
+      if (kelasTerpilih.length === 0) {
+        // Hapus semua data PKL jika tidak ada kelas yang dipilih
+        await conn("config_pkl").del();
+      } else {
+        // Simpan atau perbarui data PKL
+        await conn("config_pkl")
+          .insert(kelasTerpilih)
+          .onConflict(["id_kelas", "id_rombel"])
+          .merge();
+      }
+  
+      res.json({ message: "Data berhasil disimpan" });
+    } catch (error) {
+      console.error("Gagal menyimpan data PKL:", error);
+      res.status(500).json({ message: "Gagal menyimpan data" });
+    }
+  });
 
 // router untuk mengatasi sakit di halaman utama
 // Rute yang benar adalah '/sakit'
