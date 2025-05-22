@@ -175,6 +175,42 @@ router.post('/siswa-abseni', async (req, res) => {
     }
 });
 
+router.get('/siswa-belum-absen', async (req, res) => {
+  try {
+    // Ambil tanggal hari ini dalam format YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0]; // misal: '2025-05-21'
+
+    const siswa = await conn('siswa')
+      .leftJoin('kelas', 'siswa.id_kelas', 'kelas.id_kelas')
+      .leftJoin('rombel_belajar', 'siswa.id_rombel', 'rombel_belajar.id_rombel')
+      .leftJoin('absensi', function () {
+        this.on('siswa.id_siswa', '=', 'absensi.id_siswa')
+          .andOn('absensi.tanggal', '=', conn.raw('?', [today]));
+      })
+      .whereNull('absensi.id_siswa') // hanya siswa yang belum absen hari ini
+      .select(
+        'siswa.id_siswa',
+        'siswa.nama_siswa',
+        'kelas.kelas',
+        'rombel_belajar.nama_rombel'
+      )
+      .orderBy('siswa.nama_siswa', 'asc');
+
+    return res.status(200).json({
+      message: 'Siswa yang belum absen hari ini berhasil diambil.',
+      data: siswa.map(s => ({
+        ...s,
+        kelas_rombel: `${s.kelas} ${s.nama_rombel}`,
+      })),
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Terjadi kesalahan pada server.', error });
+  }
+});
+
+
 
 router.get('/all-absensi', async (req, res) => {
     try {
