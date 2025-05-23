@@ -188,6 +188,12 @@ router.get('/siswa-belum-absen', async (req, res) => {
           .andOn('absensi.tanggal', '=', conn.raw('?', [today]));
       })
       .whereNull('absensi.id_siswa') // hanya siswa yang belum absen hari ini
+      .whereNotExists(function () {
+        this.select('*')
+            .from('config_pkl')
+            .whereRaw('config_pkl.id_kelas = siswa.id_kelas')
+            .whereRaw('config_pkl.id_rombel = siswa.id_rombel');
+      })
       .select(
         'siswa.id_siswa',
         'siswa.nama_siswa',
