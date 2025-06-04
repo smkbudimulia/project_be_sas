@@ -55,7 +55,7 @@ const generateRandomString = (length) => {
 //     }
 // });
 
-cron.schedule("54 12 * * *", async () => {
+cron.schedule("05 09 * * *", async () => {
     try {
         const currentDate = moment().format("YYYY-MM-DD");
 
