@@ -69,4 +69,17 @@ cron.schedule("0 9 * * *", async () => {
         }
 
         if (siswaNonPKL.length > 0) {
-            await conn(
+            await conn("absensi").insert(siswaNonPKL);
+            console.log(`[${currentDate}] ${siswaNonPKL.length} siswa non-PKL otomatis ditandai Alpa.`);
+        }
+
+        if (siswaPKL.length === 0 && siswaNonPKL.length === 0) {
+            console.log(`[${currentDate}] Semua siswa sudah absen sebelum jam 09:00.`);
+        }
+    } catch (error) {
+        console.error("Gagal menjalankan cron job untuk absensi:", error);
+    }
+});
+
+// Ekspor biar bisa dipakai di file lain
+module.exports = cron;
