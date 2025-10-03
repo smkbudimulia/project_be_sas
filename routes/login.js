@@ -83,8 +83,132 @@ router.post('/login', async (req, res) => {
     }
 });
 
+//login guru
+
+router.post('/login-guru', async (req, res) => {
+    const { nama_guru, nip } = req.body;
+
+    // Memeriksa apakah ada data yang dikirim atau tidak
+    if (!nama_guru || !nip) {
+        return res.status(400).json({ error: 'Nama Guru dan NIP tidak benar' });
+    }
+
+    try {
+        // Mencari guru berdasarkan nama_guru dan nip
+        const guru = await conn('guru')
+            .where('nama_guru', nama_guru)
+            .andWhere('nip', nip)
+            .first();
+
+        if (!guru) {
+            return res.status(401).json({ error: 'Nama Guru atau NIP salah' });
+        }
+
+        // Membuat payload untuk JWT
+        const payload = {
+            id_guru: guru.id_guru,
+            nama_guru: guru.nama_guru,
+            nip: guru.nip,
+            // status: guru.status,
+        };
+
+        // Membuat token JWT
+        const token = jwt.sign(payload, process.env.TOKEN_PRIVATE, { expiresIn: '1h' });
+
+        //set token sebagai http-only cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',//gunakan https di production
+            maxAge: 60000 // 1 menit
+        })
+
+        //tmabahkan header 'token' ke dalam respons
+        res.set('token', token)
+        // Mengirimkan token dan data pengguna sebagai respon
+        res.json({
+            success: true,
+            message: 'Login berhasil',
+            token: token,
+            data: {
+                id_guru: guru.id_guru,
+                nama_guru: guru.nama_guru,
+                nip: guru.nip,
+                // email: guru.email,
+                // status: guru.status
+                // Tambahkan data lain yang ingin dikirim ke frontend
+            }
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Ada Kesalahan' });
+    }
+});
+
+router.post('/login-siswa', async (req, res) => {
+    const { nama_siswa, nis } = req.body;
+
+    // Memeriksa apakah ada data yang dikirim atau tidak
+    if (!nama_siswa || !nis) {
+        return res.status(400).json({ error: 'Nama Siswa dan NIS tidak benar' });
+    }
+
+    try {
+        // Mencari siswa berdasarkan nama_siswa dan nis
+        const siswa = await conn('siswa')
+            .where('nama_siswa', nama_siswa)
+            .andWhere('nis', nis)
+            .first();
+
+        if (!siswa) {
+            return res.status(401).json({ error: 'Nama Siswa atau NIS salah' });
+        }
+
+        // Membuat payload untuk JWT
+        const payload = {
+            id_siswa: siswa.id_siswa,
+            nama_siswa: siswa.nama_siswa,
+            nis: siswa.nis,
+            // status: siswa.status,
+        };
+
+        // Membuat token JWT
+        const token = jwt.sign(payload, process.env.TOKEN_PRIVATE, { expiresIn: '1h' });
+
+        //set token sebagai http-only cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',//gunakan https di production
+            maxAge: 60000 // 1 menit
+        })
+
+        //tmabahkan header 'token' ke dalam respons
+        res.set('token', token)
+        // Mengirimkan token dan data pengguna sebagai respon
+        res.json({
+            success: true,
+            message: 'Login berhasil',
+            token: token,
+            data: {
+                id_siswa: siswa.id_siswa,
+                nama_siswa: siswa.nama_siswa,
+                nis: siswa.nis,
+                // email: siswa.email,
+                // status: siswa.status
+                // Tambahkan data lain yang ingin dikirim ke frontend
+            }
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: 'Ada Kesalahan' });
+    }
+
+});
+
 
 //proses logout dan menghapus token dari cookei browser pengguna
+
 router.post('/logout', (req, res)=>{
     res.cookie('token', '', {maxAge: 0})
 
