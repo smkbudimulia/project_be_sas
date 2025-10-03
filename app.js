@@ -45,8 +45,8 @@ app.use(cookieParser());
 app.use(cors({
     
     // origin: 'http://localhost:60830//' //flutter
-    origin: 'http://localhost:3000'
-    // origin : 'https://sas.smkbudimuliapakisaji.sch.id'
+    // origin: 'http://localhost:3000',
+    origin : 'https://sas.smkbudimuliapakisaji.sch.id'
   }));
 
  // Middleware untuk mengurai body dalam format JSON
