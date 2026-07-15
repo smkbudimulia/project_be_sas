@@ -5,7 +5,7 @@ const app = express()
 //cronJOB
 const cronJob = require('./CronJobs/cron'); // Jalankan Cron Job
 
-// const verifyToken = require('../../middleware/jwToken')
+const verifyToken = require('./middleware/jwToken')
 const cookieParser = require('cookie-parser')
 require('dotenv').config(); // Memuat variabel dari .env
 const PORT = process.env.PORT;
@@ -45,8 +45,8 @@ app.use(cookieParser());
 app.use(cors({
     
     // origin: 'http://localhost:60830//' //flutter
-    // origin: 'http://localhost:3000',
-    origin : 'https://sas.smkbudimuliapakisaji.sch.id'
+    origin: 'http://localhost:3000',
+    // origin : 'https://sas.smkbudimuliapakisaji.sch.id'
   }));
 
  // Middleware untuk mengurai body dalam format JSON
@@ -70,9 +70,12 @@ app.use('/guru', EPGuru)
 app.use('/mapel', EPMapel)
 app.use('/tes', tes)
 
+const EPLulus = require('./routes/NonMasterData/lulus')
+
 // Non Master data
 app.use('/joinNonMaster', EPTotKelasSiswa)
 app.use('/naik', EPNaikKelas)
+app.use('/lulus', EPLulus)
 
 //Setting
 app.use('/setting', EPSetting)

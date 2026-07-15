@@ -140,7 +140,7 @@ function generateRandomString(length) {
 //   }
 // });
 
-router.post('/add-siswa', async (req, res) => {
+router.post('/add-siswa',  async (req, res) => {
     const siswaDataArray = req.body;
     const resultMessages = [];
 
@@ -236,7 +236,7 @@ router.post('/add-siswa', async (req, res) => {
 });
 
   //operasi read: melihat semua akun
-router.get('/all-Siswa',  (req, res) => {
+router.get('/all-Siswa', verifyToken, (req, res) => {
     conn('siswa')
     .select('*',
         'siswa.id_tahun_pelajaran',
